@@ -592,7 +592,7 @@ var WrappedGL = (function () {
                             var index = i;
 
                             return function (divisor) {
-                                instancedExt.vertexAttribDivisorANGLE(index, divisor); 
+                                instancedExt.vertexAttribDivisorANGLE(index, divisor);
                             }
                         }()),
                         usedInDraw: true
@@ -641,7 +641,7 @@ var WrappedGL = (function () {
     //flag is one of usedInDraw, usedInClear, usedInRead
     WrappedGL.prototype.resolveState = function (state, flag) {
         var gl = this.gl;
-        
+
 
         //first let's revert all states to default that were set but now aren't set
         for (var parameterName in this.changedParameters) {
@@ -888,7 +888,7 @@ var WrappedGL = (function () {
     };
 
     WrappedGL.prototype.createProgram = function (vertexShaderSource, fragmentShaderSource, attributeLocations) {
-        return new WrappedProgram(this, vertexShaderSource, fragmentShaderSource, attributeLocations); 
+        return new WrappedProgram(this, vertexShaderSource, fragmentShaderSource, attributeLocations);
     };
 
 
@@ -912,7 +912,7 @@ var WrappedGL = (function () {
 
                         loadedSoFar += 1;
                         if (loadedSoFar === filenames.length) { //if we've loaded all of the files
-                            onLoaded(results);    
+                            onLoaded(results);
                         }
                     }
                 }
@@ -1013,7 +1013,7 @@ var WrappedGL = (function () {
         for (var programName in programParameters) {
             if (programParameters.hasOwnProperty(programName)) {
                 var parameters = programParameters[programName];
-                
+
                 var that = this;
                 (function () {
                     var name = programName;
@@ -1025,7 +1025,7 @@ var WrappedGL = (function () {
                         if (loadedSoFar === programCount) { //if we've loaded all the programs
                             successCallback(programs);
                         }
-                    
+
                     });
                 }());
             }
@@ -1084,7 +1084,7 @@ var WrappedGL = (function () {
         var program = this.program = gl.createProgram();
         gl.attachShader(program, vertexShader);
         gl.attachShader(program, fragmentShader);
-        
+
         //bind the attribute locations that have been specified in attributeLocations
         if (requestedAttributeLocations !== undefined) {
             for (var attributeName in requestedAttributeLocations) {
@@ -1199,7 +1199,7 @@ var WrappedGL = (function () {
         } else if (cap === this.wgl.CULL_FACE) {
             this.setParameter('cullFace', [true]);
         } else if (cap === this.wgl.POLYGON_OFFSET_FILL) {
-            this.setParameter('polygonOffsetFill', [true]);   
+            this.setParameter('polygonOffsetFill', [true]);
         } else if (cap === this.wgl.SCISSOR_TEST) {
             this.setParameter('scissorTest', [true]);
         }
@@ -1215,7 +1215,7 @@ var WrappedGL = (function () {
         } else if (cap === this.wgl.CULL_FACE) {
             this.setParameter('cullFace', [false]);
         } else if (cap === this.wgl.POLYGON_OFFSET_FILL) {
-            this.setParameter('polygonOffsetFill', [false]);   
+            this.setParameter('polygonOffsetFill', [false]);
         } else if (cap === this.wgl.SCISSOR_TEST) {
             this.setParameter('scissorTest', [false]);
         }
@@ -1396,7 +1396,7 @@ var WrappedGL = (function () {
     };
 
     ClearState.prototype.clearColor = function (r, g, b, a) {
-        this.setParameter('clearColor', [r, g, b, a]);        
+        this.setParameter('clearColor', [r, g, b, a]);
         return this;
     };
 

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SPH.js</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="math.min.js"></script>
+    <script src="sph.js"></script>
+    <script src="demo.js"></script>
+  </head>
+  <body onload="run()">
+    <canvas id="canvas" width="400" height="400">
+      Canvas not supported.
+    </canvas>
+	<div>
+		<button onclick="sph.move()">Move</button>
+		<button onclick="running = true;">Run</button>
+		<button onclick="running = false;">Stop</button>
+		<button onclick="sph.clear();">Clear</button>
+	</div>
+  </body>
+</html>

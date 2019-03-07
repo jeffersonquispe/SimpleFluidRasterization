@@ -9,7 +9,8 @@ vec3 get3DFragCoord (vec3 resolution) {
 
 
 vec4 texture3D(sampler2D texture, vec3 coordinates, vec3 resolution) {
-    vec3 fullCoordinates = coordinates * resolution; //in [(0, 0, 0), (resolution.x, resolution.y, resolutionz)]
+    vec3 fullCoordinates = coordinates * resolution;
+    //in [(0, 0, 0), (resolution.x, resolution.y, resolutionz)]
 
     fullCoordinates = clamp(fullCoordinates, vec3(0.5), vec3(resolution - 0.5));
 

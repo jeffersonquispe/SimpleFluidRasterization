@@ -2,11 +2,8 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Fluid Particles</title>
-
-        <meta name="description" content="Real-time particle-based 3D fluid simulation and rendering using WebGL.">
-
-        <link href='https://fonts.googleapis.com/css?family=Asap:400,700' rel='stylesheet' type='text/css'>
+        <title>Liquid</title>
+        <meta name="description" content="Simple Liquid based renderization.">
         <link rel="stylesheet" href="flip.css"/>
     </head>
 
@@ -16,13 +13,12 @@
                 .editing-ui {
                     display: none;
                 }
-
                 .simulating-ui {
                     display: none;
                 }
             </style>
 
-            <canvas id="canvas" width="1920" height="1080"></canvas>
+            <canvas id="canvas" width="640" height="320"></canvas>
             <!--
             <div id="ui">
                 <div id="start-button">Start</div>
@@ -42,7 +38,7 @@
             </div> -->
 
             <div id="ui">
-                <div id="start-button">Start</div>
+                <div id="start-button">Inicio</div>
 
                 <div id="preset-button" class="editing-ui">Random Preset</div>
 
@@ -50,7 +46,7 @@
                 <div id="density-slider" class="slider editing-ui"></div>
 
                 <div id="particle-count" class="editing-ui"></div>
-
+                <div id="frame" class="editing-ui"></div>
                 <div class="slider-label simulating-ui">Fluidity</div>
                 <div id="fluidity-slider" class="slider simulating-ui"></div>
 
@@ -73,7 +69,6 @@
                 <span>Move mouse</span> to push particles
             </div> -->
 
-
         </script>
 
         <script type="text/template" id="no-support">
@@ -91,9 +86,9 @@
         <script src="simulatorrenderer.js"></script>
         <script src="slider.js"></script>
         <script src="fluidparticles.js"></script>
-
+        <script src="three.min.js"></script>
+        <script src="sphere.js"></script>
         <script>
-
             WrappedGL.checkWebGLSupportWithExtensions(['ANGLE_instanced_arrays', 'WEBGL_depth_texture', 'OES_texture_float',
             'OES_texture_float_linear', 'OES_texture_half_float', 'OES_texture_half_float_linear'],
                 function () { //we have webgl
@@ -103,5 +98,4 @@
             );
         </script>
     </body>
-
 </html>

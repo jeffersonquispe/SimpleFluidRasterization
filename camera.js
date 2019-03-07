@@ -136,3 +136,36 @@ var Camera = (function () {
 
     return Camera;
 }());
+
+var scene = new THREE.Scene();
+var camera = Camera;
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+var radius = 40;
+var segments = 50;
+var rings = 30;
+
+var geometry = new THREE.SphereGeometry(radius, segments, rings);
+var material = new THREE.MeshBasicMaterial({
+  color: 0xA3A2B0,
+  wireframe: true
+});
+
+var cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+camera.position.z = 150;
+
+var render = function() {
+  requestAnimationFrame(render);
+
+  cube.rotation.x += 0.01;
+  cube.rotation.y += 0.01;
+
+  renderer.render(scene, camera);
+};
+
+render();

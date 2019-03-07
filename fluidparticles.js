@@ -1,14 +1,13 @@
 'use strict'
 
 var FluidParticles = (function () {
-    var FOV = Math.PI / 3;
+    var FOV = Math.PI / 2;
 
     var State = {
         EDITING: 0,
         SIMULATING: 1
     };
-
-    var GRID_WIDTH = 40,
+    var GRID_WIDTH = 20,
         GRID_HEIGHT = 20,
         GRID_DEPTH = 20;
 
@@ -22,7 +21,7 @@ var FluidParticles = (function () {
         window.wgl = wgl;
 
         this.projectionMatrix = Utilities.makePerspectiveMatrix(new Float32Array(16), FOV, this.canvas.width / this.canvas.height, 0.1, 100.0);
-        this.camera = new Camera(this.canvas, [GRID_WIDTH / 2, GRID_HEIGHT / 3, GRID_DEPTH / 2]);
+        this.camera = new Camera(this.canvas, [GRID_WIDTH / 3, GRID_HEIGHT / 4, GRID_DEPTH / 3]);
 
         var boxEditorLoaded = false,
             simulatorRendererLoaded = false;
@@ -46,9 +45,7 @@ var FluidParticles = (function () {
 
         function start(programs) {
             this.state = State.EDITING;
-
             this.startButton = document.getElementById('start-button');
-
             this.startButton.addEventListener('click', (function () {
                 if (this.state === State.EDITING) {
                     if (this.boxEditor.boxes.length > 0) {
@@ -60,13 +57,13 @@ var FluidParticles = (function () {
                     this.redrawUI();
                 }
             }).bind(this));
-
             this.currentPresetIndex = 0;
             this.editedSinceLastPreset = false; //whether the user has edited the last set preset
             var PRESETS = [
                 //dam break
                 [
-                    new BoxEditor.AABB([0, 0, 0], [15, 20, 20])
+                    //new BoxEditor.AABB([12, 12, 5], [28, 20, 15])
+                    new BoxEditor.AABB([5, 5, 5], [15, 20, 20])
                 ],
 
                 //block drop
@@ -86,16 +83,12 @@ var FluidParticles = (function () {
             this.presetButton = document.getElementById('preset-button');
             this.presetButton.addEventListener('click', (function () {
                 this.editedSinceLastPreset = false;
-
                 this.boxEditor.boxes.length = 0;
-
                 var preset = PRESETS[this.currentPresetIndex];
                 for (var i = 0; i < preset.length; ++i) {
                     this.boxEditor.boxes.push(preset[i].clone());
                 }
-
                 this.currentPresetIndex = (this.currentPresetIndex + 1) % PRESETS.length;
-
                 this.redrawUI();
 
             }).bind(this));
@@ -107,11 +100,10 @@ var FluidParticles = (function () {
 
             //using gridCellDensity ensures a linear relationship to particle count
             this.gridCellDensity = 0.5; //simulation grid cell density per world space unit volume
-
             this.timeStep = 1.0 / 60.0;
 
             this.densitySlider = new Slider(document.getElementById('density-slider'), this.gridCellDensity, 0.2, 3.0, (function (value) {
-                this.gridCellDensity = value;
+            this.gridCellDensity = value;
 
                 this.redrawUI();
             }).bind(this));
@@ -132,15 +124,15 @@ var FluidParticles = (function () {
 
             ///////////////////////////////////////////////////////
             // interaction state stuff
-            // canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
-            // canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
-            // document.addEventListener('mouseup', this.onMouseUp.bind(this));
-            //
-            // document.addEventListener('keydown', this.onKeyDown.bind(this));
-            // document.addEventListener('keyup', this.onKeyUp.bind(this));
-            //
-            // window.addEventListener('resize', this.onResize.bind(this));
-            // this.onResize();
+            canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
+            canvas.addEventListener('mousedown', this.onMouseDown.bind(this));
+            document.addEventListener('mouseup', this.onMouseUp.bind(this));
+
+            document.addEventListener('keydown', this.onKeyDown.bind(this));
+            document.addEventListener('keyup', this.onKeyUp.bind(this));
+
+            window.addEventListener('resize', this.onResize.bind(this));
+            this.onResize();
 
             ////////////////////////////////////////////////////
             // start the update loop
@@ -155,16 +147,16 @@ var FluidParticles = (function () {
                 requestAnimationFrame(update);
             }).bind(this);
             update();
-
-
         }
     }
 
     FluidParticles.prototype.onResize = function (event) {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
-        Utilities.makePerspectiveMatrix(this.projectionMatrix, FOV, this.canvas.width / this.canvas.height, 0.1, 100.0);
+        //this.canvas.width = window.innerWidth;
+        //this.canvas.height = window.innerHeight;
+        this.canvas.width = 840;
+        this.canvas.height = 620;
 
+        Utilities.makePerspectiveMatrix(this.projectionMatrix, FOV, this.canvas.width / this.canvas.height, 0.1, 100.0);
         this.simulatorRenderer.onResize(event);
     }
 
@@ -231,8 +223,7 @@ var FluidParticles = (function () {
                 editingElements[i].style.display = 'none';
             }
 
-
-            this.startButton.textContent = 'Edit';
+            this.startButton.textContent = 'Parar';
             this.startButton.className = 'start-button-active';
         } else if (this.state === State.EDITING) {
             for (var i = 0; i < simulatingElements.length; ++i) {
@@ -240,7 +231,7 @@ var FluidParticles = (function () {
             }
 
             for (var i = 0; i < editingElements.length; ++i) {
-                editingElements[i].style.display = 'block';
+                editingElements[i ].style.display = 'block';
             }
 
             document.getElementById('particle-count').innerHTML = this.getParticleCount().toFixed(0) + ' particles';
@@ -252,7 +243,7 @@ var FluidParticles = (function () {
                 this.startButton.className = 'start-button-inactive';
             }
 
-            this.startButton.textContent = 'Start';
+            this.startButton.textContent = 'Iniciar';
 
             if (this.editedSinceLastPreset) {
                 this.presetButton.innerHTML = 'Use Preset';
@@ -303,7 +294,8 @@ var FluidParticles = (function () {
     FluidParticles.prototype.startSimulation = function () {
         this.state = State.SIMULATING;
 
-        var desiredParticleCount = this.getParticleCount(); //theoretical number of particles
+        //var desiredParticleCount = this.getParticleCount(); //theoretical number of particles
+        var desiredParticleCount=60000;
         var particlesWidth = 512; //we fix particlesWidth
         var particlesHeight = Math.ceil(desiredParticleCount / particlesWidth); //then we calculate the particlesHeight that produces the closest particle count
 
@@ -335,7 +327,7 @@ var FluidParticles = (function () {
 
             particlesCreatedSoFar += particlesInBox;
         }
-
+        console.log(particlesCreatedSoFar);
         var gridCells = GRID_WIDTH * GRID_HEIGHT * GRID_DEPTH * this.gridCellDensity;
 
         //assuming x:y:z ratio of 2:1:1
@@ -345,7 +337,8 @@ var FluidParticles = (function () {
         var gridSize = [GRID_WIDTH, GRID_HEIGHT, GRID_DEPTH];
         var gridResolution = [gridResolutionX, gridResolutionY, gridResolutionZ];
 
-        var sphereRadius = 7.0 / gridResolutionX;
+        var sphereRadius = 3.0 / gridResolutionX;
+        console.log(sphereRadius);
         this.simulatorRenderer.reset(particlesWidth, particlesHeight, particlePositions, gridSize, gridResolution, PARTICLES_PER_CELL, sphereRadius);
 
         this.camera.setBounds(0, Math.PI / 2);

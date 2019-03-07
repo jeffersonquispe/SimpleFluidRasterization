@@ -24,7 +24,7 @@ var Simulator = (function () {
     z velocity for cell [i, j, k] is positionally located at [i + 0.5, j + 0.5, k]
     */
 
-    //the boundaries are the boundaries of the grid 
+    //the boundaries are the boundaries of the grid
     //a grid cell can either be fluid, air (these are tracked by markTexture) or is a wall (implicit by position)
 
     function Simulator (wgl, onLoaded) {
@@ -32,7 +32,7 @@ var Simulator = (function () {
 
         this.particlesWidth = 0;
         this.particlesHeight = 0;
-        
+
         this.gridWidth = 0;
         this.gridHeight = 0;
         this.gridDepth = 0;
@@ -49,22 +49,17 @@ var Simulator = (function () {
         this.scalarTextureWidth = 0;
         this.scalarTextureHeight = 0;
 
-        
         this.halfFloatExt = this.wgl.getExtension('OES_texture_half_float');
         this.wgl.getExtension('OES_texture_half_float_linear');
 
         this.simulationNumberType = this.halfFloatExt.HALF_FLOAT_OES;
 
-
         ///////////////////////////////////////////////////////
         // simulation parameters
+        this.flipness = 0.5; //0 is full PIC, 1 is full FLIP
 
-        this.flipness = 0.99; //0 is full PIC, 1 is full FLIP
+        this.frameNumber = 0.0; //used for motion randomness
 
-
-        this.frameNumber = 0; //used for motion randomness
-
-        
         /////////////////////////////////////////////////
         // simulation objects (most are filled in by reset)
 
@@ -93,17 +88,13 @@ var Simulator = (function () {
         this.tempVelocityTexture = wgl.createTexture();
         this.originalVelocityTexture = wgl.createTexture();
         this.weightTexture = wgl.createTexture();
-
         this.markerTexture = wgl.createTexture(); //marks fluid/air, 1 if fluid, 0 if air
         this.divergenceTexture = wgl.createTexture();
         this.pressureTexture = wgl.createTexture();
         this.tempSimulationTexture = wgl.createTexture();
 
-
-
         /////////////////////////////
         // load programs
-
 
         wgl.createProgramsFromFiles({
             transferToGridProgram: {
@@ -205,7 +196,7 @@ var Simulator = (function () {
 
         ///////////////////////////////////////////////////////////
         // create particle data
-        
+
         var particleCount = this.particlesWidth * this.particlesHeight;
 
         //fill particle vertex buffer containing the relevant texture coordinates
@@ -254,12 +245,10 @@ var Simulator = (function () {
         wgl.rebuildTexture(this.tempVelocityTexture, wgl.RGBA, this.simulationNumberType, this.velocityTextureWidth, this.velocityTextureHeight, null, wgl.CLAMP_TO_EDGE, wgl.CLAMP_TO_EDGE, wgl.LINEAR, wgl.LINEAR);
         wgl.rebuildTexture(this.originalVelocityTexture, wgl.RGBA, this.simulationNumberType, this.velocityTextureWidth, this.velocityTextureHeight, null, wgl.CLAMP_TO_EDGE, wgl.CLAMP_TO_EDGE, wgl.LINEAR, wgl.LINEAR);
         wgl.rebuildTexture(this.weightTexture, wgl.RGBA, this.simulationNumberType, this.velocityTextureWidth, this.velocityTextureHeight, null, wgl.CLAMP_TO_EDGE, wgl.CLAMP_TO_EDGE, wgl.LINEAR, wgl.LINEAR);
-
         wgl.rebuildTexture(this.markerTexture, wgl.RGBA, wgl.UNSIGNED_BYTE, this.scalarTextureWidth, this.scalarTextureHeight, null, wgl.CLAMP_TO_EDGE, wgl.CLAMP_TO_EDGE, wgl.LINEAR, wgl.LINEAR); //marks fluid/air, 1 if fluid, 0 if air
         wgl.rebuildTexture(this.divergenceTexture, wgl.RGBA, this.simulationNumberType, this.scalarTextureWidth, this.scalarTextureHeight, null, wgl.CLAMP_TO_EDGE, wgl.CLAMP_TO_EDGE, wgl.LINEAR, wgl.LINEAR);
         wgl.rebuildTexture(this.pressureTexture, wgl.RGBA, this.simulationNumberType, this.scalarTextureWidth, this.scalarTextureHeight, null, wgl.CLAMP_TO_EDGE, wgl.CLAMP_TO_EDGE, wgl.LINEAR, wgl.LINEAR);
         wgl.rebuildTexture(this.tempSimulationTexture, wgl.RGBA, this.simulationNumberType, this.scalarTextureWidth, this.scalarTextureHeight, null, wgl.CLAMP_TO_EDGE, wgl.CLAMP_TO_EDGE, wgl.LINEAR, wgl.LINEAR);
-
 
     }
 
@@ -302,9 +291,7 @@ var Simulator = (function () {
         var transferToGridDrawState = wgl.createDrawState()
             .bindFramebuffer(this.simulationFramebuffer)
             .viewport(0, 0, this.velocityTextureWidth, this.velocityTextureHeight)
-
             .vertexAttribPointer(this.particleVertexBuffer, 0, 2, wgl.FLOAT, wgl.FALSE, 0, 0)
-
             .useProgram(this.transferToGridProgram)
             .uniform3f('u_gridResolution', this.gridResolutionX, this.gridResolutionY, this.gridResolutionZ)
             .uniform3f('u_gridSize', this.gridWidth, this.gridHeight, this.gridDepth)
@@ -432,7 +419,7 @@ var Simulator = (function () {
 
         swap(this, 'velocityTexture', 'tempVelocityTexture');
 
-        
+
         /////////////////////////////////////////////////////
         // enforce boundary velocity conditions
 
@@ -455,12 +442,10 @@ var Simulator = (function () {
 
         /////////////////////////////////////////////////////
         // update velocityTexture for non divergence
-
-
          //compute divergence for pressure projection
 
         var divergenceDrawState = wgl.createDrawState()
-            
+
             .bindFramebuffer(this.simulationFramebuffer)
             .viewport(0, 0, this.scalarTextureWidth, this.scalarTextureHeight)
 
@@ -478,10 +463,10 @@ var Simulator = (function () {
         wgl.clear(
             wgl.createClearState().bindFramebuffer(this.simulationFramebuffer),
             wgl.COLOR_BUFFER_BIT);
-        
+
         wgl.drawArrays(divergenceDrawState, wgl.TRIANGLE_STRIP, 0, 4);
-        
-        
+
+
         //compute pressure via jacobi iteration
 
         var jacobiDrawState = wgl.createDrawState()
@@ -500,18 +485,18 @@ var Simulator = (function () {
         wgl.clear(
             wgl.createClearState().bindFramebuffer(this.simulationFramebuffer),
             wgl.COLOR_BUFFER_BIT);
-        
-        var PRESSURE_JACOBI_ITERATIONS = 50;
+
+        var PRESSURE_JACOBI_ITERATIONS = 100;
         for (var i = 0; i < PRESSURE_JACOBI_ITERATIONS; ++i) {
             wgl.framebufferTexture2D(this.simulationFramebuffer, wgl.FRAMEBUFFER, wgl.COLOR_ATTACHMENT0, wgl.TEXTURE_2D, this.tempSimulationTexture, 0);
             jacobiDrawState.uniformTexture('u_pressureTexture', 0, wgl.TEXTURE_2D, this.pressureTexture);
-            
+
             wgl.drawArrays(jacobiDrawState, wgl.TRIANGLE_STRIP, 0, 4);
-            
+
             swap(this, 'pressureTexture', 'tempSimulationTexture');
         }
-        
-        
+
+
         //subtract pressure gradient from velocity
 
         wgl.framebufferTexture2D(this.simulationFramebuffer, wgl.FRAMEBUFFER, wgl.COLOR_ATTACHMENT0, wgl.TEXTURE_2D, this.tempVelocityTexture, 0);
@@ -527,9 +512,9 @@ var Simulator = (function () {
             .uniformTexture('u_markerTexture', 2, wgl.TEXTURE_2D, this.markerTexture)
 
             .vertexAttribPointer(this.quadVertexBuffer, 0, 2, wgl.FLOAT, false, 0, 0)
-        
+
         wgl.drawArrays(subtractDrawState, wgl.TRIANGLE_STRIP, 0, 4);
-        
+
         swap(this, 'velocityTexture', 'tempVelocityTexture');
 
         /////////////////////////////////////////////////////////////
@@ -560,7 +545,6 @@ var Simulator = (function () {
         ///////////////////////////////////////////////
         // advect particle positions with velocity grid using RK2
 
-
         wgl.framebufferTexture2D(this.simulationFramebuffer, wgl.FRAMEBUFFER, wgl.COLOR_ATTACHMENT0, wgl.TEXTURE_2D, this.particlePositionTextureTemp, 0);
         wgl.clear(
             wgl.createClearState().bindFramebuffer(this.simulationFramebuffer),
@@ -569,9 +553,7 @@ var Simulator = (function () {
         var advectDrawState = wgl.createDrawState()
             .bindFramebuffer(this.simulationFramebuffer)
             .viewport(0, 0, this.particlesWidth, this.particlesHeight)
-
             .vertexAttribPointer(this.quadVertexBuffer, 0, 2, wgl.FLOAT, wgl.FALSE, 0, 0)
-
             .useProgram(this.advectProgram)
             .uniformTexture('u_positionsTexture', 0, wgl.TEXTURE_2D, this.particlePositionTexture)
             .uniformTexture('u_randomsTexture', 1, wgl.TEXTURE_2D, this.particleRandomTexture)
@@ -581,11 +563,9 @@ var Simulator = (function () {
             .uniform1f('u_timeStep', timeStep)
             .uniform1f('u_frameNumber', this.frameNumber)
             .uniform2f('u_particlesResolution', this.particlesWidth, this.particlesHeight);
-
         wgl.drawArrays(advectDrawState, wgl.TRIANGLE_STRIP, 0, 4);
-
+        console.log(this.frameNumber);
         swap(this, 'particlePositionTextureTemp', 'particlePositionTexture');
     }
-
     return Simulator;
 }());

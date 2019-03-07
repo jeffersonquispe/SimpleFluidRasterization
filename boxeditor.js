@@ -47,7 +47,7 @@ var BoxEditor = (function () {
     };
 
     var STEP = 1.0;
-        
+
 
     function exclusiveAABBOverlap (a, b) {
         return a.min[0] < b.max[0] && a.max[0] > b.min[0] &&
@@ -103,7 +103,7 @@ var BoxEditor = (function () {
 
             //t1 and t2 now hold the lower and upper intersection t's respectively
 
-            //the part of the line we just clipped for does not overlap the part previously clipped and thus there is no intersection 
+            //the part of the line we just clipped for does not overlap the part previously clipped and thus there is no intersection
             if (t2 < lowT || t1 > highT) return null;
 
             //further clip the line between the planes in this axis
@@ -162,19 +162,14 @@ var BoxEditor = (function () {
     //onChange is a callback that gets called anytime a box gets edited
     function BoxEditor (canvas, wgl, projectionMatrix, camera, gridSize, onLoaded, onChange) {
         this.canvas = canvas;
-
         this.wgl = wgl;
-
         this.gridWidth = gridSize[0];
         this.gridHeight = gridSize[1];
         this.gridDepth = gridSize[2];
         this.gridDimensions = [this.gridWidth, this.gridHeight, this.gridDepth];
-
         this.projectionMatrix = projectionMatrix;
         this.camera = camera;
-
         this.onChange = onChange;
-
         //the cube geometry is a 1x1 cube with the origin at the bottom left corner
 
         this.cubeVertexBuffer = wgl.createBuffer();
@@ -182,41 +177,40 @@ var BoxEditor = (function () {
               // Front face
               0.0, 0.0,  1.0,
                1.0, 0.0,  1.0,
+
                1.0,  1.0,  1.0,
               0.0,  1.0,  1.0,
-              
+
               // Back face
               0.0, 0.0, 0.0,
               0.0,  1.0, 0.0,
                1.0,  1.0, 0.0,
                1.0, 0.0, 0.0,
-              
+
               // Top face
               0.0,  1.0, 0.0,
               0.0,  1.0,  1.0,
                1.0,  1.0,  1.0,
                1.0,  1.0, 0.0,
-              
+
               // Bottom face
               0.0, 0.0, 0.0,
                1.0, 0.0, 0.0,
                1.0, 0.0,  1.0,
               0.0, 0.0,  1.0,
-              
+
               // Right face
                1.0, 0.0, 0.0,
                1.0,  1.0, 0.0,
                1.0,  1.0,  1.0,
                1.0, 0.0,  1.0,
-              
+
               // Left face
               0.0, 0.0, 0.0,
               0.0, 0.0,  1.0,
               0.0,  1.0,  1.0,
               0.0,  1.0, 0.0
             ]), wgl.STATIC_DRAW);
-
-
 
         this.cubeIndexBuffer = wgl.createBuffer();
         wgl.bufferData(this.cubeIndexBuffer, wgl.ELEMENT_ARRAY_BUFFER, new Uint16Array([
@@ -227,7 +221,6 @@ var BoxEditor = (function () {
             16, 17, 18,     16, 18, 19,   // right
             20, 21, 22,     20, 22, 23    // left
         ]), wgl.STATIC_DRAW);
-
 
         this.cubeWireframeVertexBuffer = wgl.createBuffer();
         wgl.bufferData(this.cubeWireframeVertexBuffer, wgl.ARRAY_BUFFER, new Float32Array([
@@ -249,14 +242,14 @@ var BoxEditor = (function () {
         ]), wgl.STATIC_DRAW);
 
 
-        //there's one grid vertex buffer for the planes normal to each axis 
+        //there's one grid vertex buffer for the planes normal to each axis
         this.gridVertexBuffers = [];
 
         for (var axis = 0; axis < 3; ++axis) {
             this.gridVertexBuffers[axis] = wgl.createBuffer();
 
             var vertexData = [];
-            
+
 
             var points; //the points that make up this grid plane
 
@@ -296,7 +289,7 @@ var BoxEditor = (function () {
                 vertexData.push(points[(i + 1) % 4][1]);
                 vertexData.push(points[(i + 1) % 4][2]);
             }
-            
+
 
             wgl.bufferData(this.gridVertexBuffers[axis], wgl.ARRAY_BUFFER, new Float32Array(vertexData), wgl.STATIC_DRAW);
         }
@@ -337,7 +330,7 @@ var BoxEditor = (function () {
 
         click and drag on side of boxes whilst holding shift to move
 
-        
+
         //while we're not interacting, this is null
         //while we are interacting this contains an object
         /*
@@ -398,7 +391,7 @@ var BoxEditor = (function () {
                 this[programName] = programs[programName];
             }
 
-            onLoaded(); 
+            onLoaded();
         }).bind(this));
     }
 
@@ -470,7 +463,7 @@ var BoxEditor = (function () {
 
                             //resolve collision
                             if (side === -1) {
-                                box.min[axis] = otherBox.max[axis]; 
+                                box.min[axis] = otherBox.max[axis];
                             } else if (side === 1) {
                                 box.max[axis] = otherBox.min[axis];
                             }
@@ -496,8 +489,8 @@ var BoxEditor = (function () {
                 var box = this.interactionState.box,
                     side = this.interactionState.side,
                     axis = this.interactionState.axis;
-                
-                
+
+
                 var length = this.interactionState.startMax - this.interactionState.startMin; //the length of the box along the translation axis
 
                 if (side === -1) {
@@ -519,7 +512,7 @@ var BoxEditor = (function () {
                     box.min[axis] = this.gridDimensions[axis] - length;
                 }
 
-                
+
                 var translationDirection = 0; //is either -1 or 1 depending on which way we're pushing our box
                 //how we resolve collisions depends on our translation direction
                 if (side === -1) {
@@ -528,7 +521,7 @@ var BoxEditor = (function () {
                     translationDirection = newCoordinate < this.interactionState.startMax ? -1 : 1;
                 }
 
-                
+
                 var sweptBox = box.clone(); //we sweep out translating AABB for collision detection to prevent ghosting through boxes
                 //reset swept box to original box location before translation
                 sweptBox.min[axis] = this.interactionState.startMin;
@@ -540,7 +533,7 @@ var BoxEditor = (function () {
                 } else if (translationDirection === -1) {
                     sweptBox.min[axis] = box.min[axis];
                 }
-                
+
                 //collision detection
                 for (var i = 0; i < this.boxes.length; ++i) {
                     var otherBox = this.boxes[i];
@@ -549,7 +542,7 @@ var BoxEditor = (function () {
 
                             //resolve collision
                             if (translationDirection === -1) {
-                                box.min[axis] = otherBox.max[axis]; 
+                                box.min[axis] = otherBox.max[axis];
                                 box.max[axis] = otherBox.max[axis] + length;
                             } else if (translationDirection === 1) {
                                 box.max[axis] = otherBox.min[axis];
@@ -560,7 +553,7 @@ var BoxEditor = (function () {
                 }
 
             } else if (this.interactionState.mode === InteractionMode.DRAWING) {
-        
+
                 var mouseRay = this.getMouseRay();
 
                 //get the mouse ray intersection with the drawing plane
@@ -602,7 +595,7 @@ var BoxEditor = (function () {
 
                         if (box !== otherBox) { //don't collide with self
                             if (exclusiveAABBOverlap(sweptBox, otherBox)) {
-                                
+
                                 //we resolve along the axis with the smaller overlap and where the start point doesn't already overlap the other box in that axis
                                 var smallestOverlap = 99999999;
                                 var smallestOverlapAxis = -1;
@@ -696,7 +689,7 @@ var BoxEditor = (function () {
                         if (intersection[0] >= 0.0 && intersection[0] <= this.gridDimensions[0] &&
                             intersection[1] >= 0.0 && intersection[1] <= this.gridDimensions[1] &&
                             intersection[2] >= 0.0 && intersection[2] <= this.gridDimensions[2]) {
-                            
+
                             return {
                                 axis: axis,
                                 side: side,
@@ -775,7 +768,7 @@ var BoxEditor = (function () {
 
                     if (planeIntersection !== null) { //if we've hit one of the planes
                         //go into drawing mode
-                        
+
                         var point = planeIntersection.point;
                         point[0] = quantize(point[0], STEP);
                         point[1] = quantize(point[1], STEP);
@@ -799,7 +792,7 @@ var BoxEditor = (function () {
             }
 
         }
-        
+
         if (this.interactionState === null) {
             this.camera.onMouseDown(event);
         }
@@ -836,7 +829,7 @@ var BoxEditor = (function () {
 
                     var intersection = Utilities.addVectors([], mouseRay.origin, Utilities.multiplyVectorByScalar([], mouseRay.direction, t));
                     quantizeVector(intersection, STEP);
-        
+
                     //clamp extrusion point to grid and to box
                     for (var i = 0; i < 3; ++i) {
                         intersection[i] = Utilities.clamp(intersection[i], 0, this.gridDimensions[i]);
@@ -899,7 +892,6 @@ var BoxEditor = (function () {
 
     BoxEditor.prototype.draw = function () {
         var wgl = this.wgl;
-
         wgl.clear(
             wgl.createClearState().bindFramebuffer(null).clearColor(0.9, 0.9, 0.9, 1.0),
             wgl.COLOR_BUFFER_BIT | wgl.DEPTH_BUFFER_BIT);
@@ -910,45 +902,32 @@ var BoxEditor = (function () {
         var backgroundDrawState = wgl.createDrawState()
             .bindFramebuffer(null)
             .viewport(0, 0, this.canvas.width, this.canvas.height)
-
             .useProgram(this.backgroundProgram)
-
             .vertexAttribPointer(this.quadVertexBuffer, this.backgroundProgram.getAttribLocation('a_position'), 2, wgl.FLOAT, wgl.FALSE, 0, 0);
-
         wgl.drawArrays(backgroundDrawState, wgl.TRIANGLE_STRIP, 0, 4);
-
 
         /////////////////////////////////////////////
         //draw grid
-
         for (var axis = 0; axis < 3; ++axis) {
             for (var side = 0; side <= 1; ++side) {
                 var cameraPosition = this.camera.getPosition();
-
                 var planePosition = [this.gridWidth / 2, this.gridHeight / 2, this.gridDepth / 2];
                 planePosition[axis] = side === 0 ? 0 : this.gridDimensions[axis];
-                
                 var cameraDirection = Utilities.subtractVectors([], planePosition, cameraPosition);
-
                 var gridDrawState = wgl.createDrawState()
                     .bindFramebuffer(null)
                     .viewport(0, 0, this.canvas.width, this.canvas.height)
-
                     .useProgram(this.gridProgram)
-
                     .vertexAttribPointer(this.gridVertexBuffers[axis], this.gridProgram.getAttribLocation('a_vertexPosition'), 3, wgl.FLOAT, wgl.FALSE, 0, 0)
-
                     .uniformMatrix4fv('u_projectionMatrix', false, this.projectionMatrix)
                     .uniformMatrix4fv('u_viewMatrix', false, this.camera.getViewMatrix());
 
                 var translation = [0, 0, 0];
                 translation[axis] = side * this.gridDimensions[axis];
-
                 gridDrawState.uniform3f('u_translation', translation[0], translation[1], translation[2]);
 
-
                 if (side === 0 && cameraDirection[axis] <= 0 || side === 1 && cameraDirection[axis] >= 0) {
-                    wgl.drawArrays(gridDrawState, wgl.LINES, 0, 8);
+                  //  wgl.drawArrays(gridDrawState, wgl.LINES, 0, 8);
                 }
             }
         }
@@ -960,19 +939,13 @@ var BoxEditor = (function () {
         var boxDrawState = wgl.createDrawState()
             .bindFramebuffer(null)
             .viewport(0, 0, this.canvas.width, this.canvas.height)
-
             .enable(wgl.DEPTH_TEST)
             .enable(wgl.CULL_FACE)
-
             .useProgram(this.boxProgram)
-
             .vertexAttribPointer(this.cubeVertexBuffer, this.boxProgram.getAttribLocation('a_cubeVertexPosition'), 3, wgl.FLOAT, wgl.FALSE, 0, 0)
-
             .bindIndexBuffer(this.cubeIndexBuffer)
-
             .uniformMatrix4fv('u_projectionMatrix', false, this.projectionMatrix)
             .uniformMatrix4fv('u_viewMatrix', false, this.camera.getViewMatrix())
-
             .enable(wgl.POLYGON_OFFSET_FILL)
             .polygonOffset(1, 1);
 
@@ -1000,7 +973,6 @@ var BoxEditor = (function () {
                 boxToHighlight = boxIntersection.aabb;
                 sideToHighlight = [1.5, 1.5, 1.5];
                 sideToHighlight[boxIntersection.axis] = boxIntersection.side;
-
                 highlightColor = [0.9, 0.9, 0.9];
             }
 
@@ -1036,11 +1008,11 @@ var BoxEditor = (function () {
 
                         .uniformMatrix3fv('u_rotation', false, rotation);
 
-                    wgl.drawArrays(pointDrawState, wgl.TRIANGLE_STRIP, 0, 4);
+                    //wgl.drawArrays(pointDrawState, wgl.TRIANGLE_STRIP, 0, 4);
                 }
             }
         }
-        
+
         for (var i = 0; i < this.boxes.length; ++i) {
             var box = this.boxes[i];
 
@@ -1061,27 +1033,20 @@ var BoxEditor = (function () {
 
         var boxWireframeDrawState = wgl.createDrawState()
             .bindFramebuffer(null)
-            .viewport(0, 0, this.canvas.width, this.canvas.height)
-
+            .viewport(0, 0, 10, 10)
             .enable(wgl.DEPTH_TEST)
-
             .useProgram(this.boxWireframeProgram)
-
             .vertexAttribPointer(this.cubeWireframeVertexBuffer, this.boxWireframeProgram.getAttribLocation('a_cubeVertexPosition'), 3, wgl.FLOAT, wgl.FALSE, 0, 0)
-
             .bindIndexBuffer(this.cubeWireframeIndexBuffer)
-
             .uniformMatrix4fv('u_projectionMatrix', false, this.projectionMatrix)
             .uniformMatrix4fv('u_viewMatrix', false, this.camera.getViewMatrix())
 
-        
         for (var i = 0; i < this.boxes.length; ++i) {
             var box = this.boxes[i];
 
             boxWireframeDrawState.uniform3f('u_translation', box.min[0], box.min[1], box.min[2])
                 .uniform3f('u_scale', box.max[0] - box.min[0], box.max[1] - box.min[1], box.max[2] - box.min[2]);
-
-            wgl.drawElements(boxWireframeDrawState, wgl.LINES, 24, wgl.UNSIGNED_SHORT);
+            //wgl.drawElements(boxWireframeDrawState, wgl.LINES, 24, wgl.UNSIGNED_SHORT);
         }
 
 

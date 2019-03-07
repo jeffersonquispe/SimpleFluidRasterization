@@ -6,7 +6,6 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-
     user-select: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -17,29 +16,25 @@ body {
     font-size: 16px;
     color: white;
     font-weight: bold;
-
     margin-bottom: 15px;
-
     width: 120px;
     height: 40px;
     line-height: 40px;
-
     text-align: center;
-
     pointer-events: auto;
 }
 
 .start-button-active {
     cursor: default;
-    background: rgb(70, 190, 60);
+    background: rgb(0, 0, 160);
 }
 
 .start-button-active:hover {
-    background: rgb(60, 180, 50);
+    background: rgb(160, 0, 50);
 }
 
 .start-button-active:active {
-    background: rgb(50, 170, 40);
+    background: rgb(160, 0, 0);
 }
 
 .start-button-inactive {
@@ -50,7 +45,7 @@ body {
 #preset-button {
     margin-bottom: 10px;
 
-    background: rgba(80, 160, 230, 1.0);
+    background: rgba(0, 0, 0, 1.0);
 
     font-size: 12px;
     font-weight: bold;
@@ -68,27 +63,23 @@ body {
 }
 
 #preset-button:hover {
-    background: rgba(70, 150, 220, 1.0);
+    background: rgba(0, 0, 220, 1.0);
 }
 
 #preset-button:active {
-    background: rgba(60, 140, 210, 1.0);
+    background: rgba(60, 140, 0, 1.0);
 }
 
 #ui {
     position: absolute;
-
     pointer-events: none;
-
     top: 30px;
-    left: 30px;
+    left: 930px;
 }
 
 #particle-count {
-    color: #777777;
-
+    color: #F77777;
     font-size: 12px;
-
     margin-top: 4px;
 }
 
@@ -110,9 +101,7 @@ body {
     -moz-user-select: none;
     -webkit-user-select: none;
     -ms-user-select: none;
-
     background: rgba(0, 0, 0, 0.1);
-
     pointer-events: auto;
 }
 
